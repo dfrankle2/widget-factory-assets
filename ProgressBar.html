@@ -1,0 +1,55 @@
+<!-- 
+  PROGRESSBAR COMPONENT TEMPLATE
+  
+  Instructions:
+  1. In Webflow Designer, create a new div
+  2. Copy and paste this entire code block
+  3. Select all elements and create a component named "Progress Bar"
+  4. Add component properties as described below
+  
+  Component Properties to add:
+  - accentColor (Color): Color for the progress bar
+-->
+
+<div class="progress-component" data-component="ProgressBar">
+  <div class="progress-wrapper">
+    <div class="progress-bar" style="background-color: {{accentColor}};"></div>
+  </div>
+</div>
+
+<!-- 
+  CSS to add to project settings:
+  
+  .progress-component {
+    width: 100%;
+  }
+  
+  .progress-wrapper {
+    width: 100%;
+    height: 8px;
+    background-color: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #4285f4;
+    transition: width 0.3s ease;
+  }
+  
+  .progress-bar.waiting {
+    animation: progress-pulse 1.5s infinite;
+  }
+  
+  .progress-bar.error {
+    background-color: #f44336;
+  }
+  
+  @keyframes progress-pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+-->

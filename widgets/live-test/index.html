@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Widget Factory Make.com Integration</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    
+    /* WidgetShell styles */
+    [data-component="WidgetShell"] {
+      max-width: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    /* FileInput styles */
+    [data-component="FileInput"] {
+      width: 100%;
+    }
+    
+    .dropzone {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 160px;
+      border: 2px dashed #ccc;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.2s;
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .dropzone:hover, .dropzone.dragover {
+      border-color: #4285f4;
+      background-color: rgba(66, 133, 244, 0.05);
+    }
+    
+    .dropzone input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    
+    /* ProgressBar styles */
+    [data-component="ProgressBar"] {
+      width: 100%;
+    }
+    
+    .progress-wrapper {
+      width: 100%;
+      height: 8px;
+      background-color: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #4285f4;
+      transition: width 0.3s ease;
+    }
+    
+    .progress-bar.waiting {
+      animation: progress-pulse 1.5s infinite;
+    }
+    
+    .progress-bar.error {
+      background-color: #f44336;
+    }
+    
+    @keyframes progress-pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    
+    /* ResultCard styles */
+    [data-component="ResultCard"] {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      background-color: white;
+      width: 100%;
+      display: none;
+    }
+    
+    [data-result="headline"] {
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    [data-result="text"] {
+      white-space: pre-wrap;
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 6px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    [data-result="text"].widget-error {
+      color: #f44336;
+    }
+    
+    .widget-copy {
+      margin-top: 10px;
+      padding: 6px 12px;
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    [data-result="single-link"] {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: #4285f4;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    
+    [data-result="single-link"]:hover {
+      background-color: #3367d6;
+    }
+    
+    [data-result="link-list"] {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0 0 0;
+    }
+    
+    [data-result="link-list"] li {
+      margin-bottom: 8px;
+    }
+    
+    [data-result="link-list"] a {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: #4285f4;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    
+    [data-result="link-list"] a:hover {
+      background-color: #3367d6;
+    }
+    
+    button[type="submit"] {
+      align-self: flex-start;
+      padding: 8px 16px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    button[type="submit"]:hover {
+      background-color: #3367d6;
+    }
+    
+    button[type="submit"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Event log */
+    .event-log {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 30px;
+      background-color: #f9f9f9;
+    }
+    
+    .event-log h2 {
+      margin-top: 0;
+      font-size: 1.2em;
+    }
+    
+    .event {
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .event-time {
+      color: #666;
+      font-size: 0.8em;
+    }
+    
+    pre {
+      background-color: #f0f0f0;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Widget Factory Make.com Integration</h1>
+  <p>This page connects to your actual Make.com webhooks for testing.</p>
+  
+  <!-- PDF to Text Widget -->
+  <div data-component="WidgetShell" 
+       data-widget-id="pdf-to-text"
+       data-output-type="text"
+       data-presign-endpoint="https://hook.us1.make.com/gdcgg8ryb664x79ueclrbnjpj8f7k1wn"
+       data-process-endpoint="https://hook.us1.make.com/mq6panopy0wdk7cuq94xkt9tf2lhriup">
+    
+    <h2>PDF to Text Converter</h2>
+    <p>Upload a PDF document and extract its text content.</p>
+    
+    <div data-component="FileInput" data-max-size="10">
+      <div class="dropzone" style="position: relative;">
+        <input type="file" accept=".pdf">
+        <p>Drag & drop your PDF here, or click to browse</p>
+        <p><small>Maximum size: 10MB</small></p>
+      </div>
+    </div>
+    
+    <button type="submit">Submit</button>
+    
+    <div data-component="ProgressBar">
+      <div class="progress-wrapper">
+        <div class="progress-bar"></div>
+      </div>
+    </div>
+    
+    <div data-component="ResultCard">
+      <h3 data-result="headline">Results</h3>
+      <div data-result="text"></div>
+      <a data-result="single-link" href="#" target="_blank" style="display: none;">Download</a>
+      <button class="widget-copy">Copy</button>
+    </div>
+  </div>
+  
+  <div class="event-log">
+    <h2>Event Log</h2>
+    <div id="events"></div>
+  </div>
+
+  <script>
+    class WidgetController {
+      constructor(shellSelector = '[data-component="WidgetShell"]') {
+        // Find widget shell
+        this.shell = typeof shellSelector === 'string' 
+          ? document.querySelector(shellSelector) 
+          : shellSelector;
+        
+        if (!this.shell) {
+          console.error('Widget shell not found');
+          return;
+        }
+        
+        // Find components
+        this.input = this.shell.querySelector('[data-component="FileInput"] input[type=file]');
+        this.progressBar = this.shell.querySelector('[data-component="ProgressBar"] .progress-bar');
+        this.resultCard = this.shell.querySelector('[data-component="ResultCard"]');
+        this.submitBtn = this.shell.querySelector('button[type="submit"]');
+        
+        // Get configuration
+        this.widgetId = this.shell.dataset.widgetId || '';
+        this.presignEndpoint = this.shell.dataset.presignEndpoint || 'https://hook.us1.make.com/gdcgg8ryb664x79ueclrbnjpj8f7k1wn';
+        this.processEndpoint = this.shell.dataset.processEndpoint || 'https://hook.us1.make.com/mq6panopy0wdk7cuq94xkt9tf2lhriup';
+        this.outputType = this.shell.dataset.outputType || 'file';
+        this.maxFileSize = parseInt(this.shell.querySelector('[data-component="FileInput"]')?.dataset.maxSize || '5') * 1024 * 1024;
+        
+        // Anonymous ID
+        this.anonId = localStorage.anonId || (localStorage.anonId = crypto.randomUUID());
+        
+        // Initialize if all components are present
+        if (this.input && this.progressBar && this.resultCard && this.submitBtn) {
+          this.bindEvents();
+          console.log('Widget initialized:', this.widgetId);
+        } else {
+          console.error('Widget initialization failed: Missing components');
+        }
+      }
+      
+      bindEvents() {
+        // Submit button
+        this.submitBtn.addEventListener('click', this.handleSubmit.bind(this));
+        
+        // Drag and drop
+        const dropzone = this.shell.querySelector('.dropzone');
+        if (dropzone) {
+          dropzone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+          });
+          
+          dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+          });
+          
+          dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+              this.input.files = e.dataTransfer.files;
+            }
+          });
+        }
+        
+        // Copy buttons
+        const copyBtn = this.shell.querySelector('.widget-copy');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            const text = this.shell.querySelector('[data-result="text"]').textContent;
+            navigator.clipboard.writeText(text)
+              .then(() => {
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => copyBtn.textContent = 'Copy', 1500);
+              });
+          });
+        }
+      }
+      
+      handleSubmit() {
+        const file = this.input.files[0];
+        if (!file) {
+          alert('Please select a file');
+          return;
+        }
+        
+        if (file.size > this.maxFileSize) {
+          alert(`File is too large. Maximum size is ${this.maxFileSize / 1024 / 1024}MB.`);
+          return;
+        }
+        
+        this.dispatchWidgetEvent('input:ready');
+        this.processFile(file);
+      }
+      
+      async processFile(file) {
+        // Disable submit button
+        this.submitBtn.disabled = true;
+        this.submitBtn.textContent = 'Processing...';
+        
+        try {
+          // Generate file key
+          const ext = file.name.split('.').pop() || '';
+          const fileKey = `uploads/${this.widgetId}/${crypto.randomUUID()}.${ext}`;
+          
+          // Log the event
+          logEvent('File selected', { 
+            name: file.name, 
+            size: file.size, 
+            type: file.type,
+            fileKey: fileKey
+          });
+          
+          // Step 1: Get presigned URL
+          this.dispatchWidgetEvent('upload:progress', { percent: 5 });
+          logEvent('Presign request', { 
+            endpoint: this.presignEndpoint,
+            fileKey: fileKey
+          });
+          
+          const presignResponse = await fetch(this.presignEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileKey,
+              mime: file.type,
+              size: file.size,
+              anon_id: this.anonId,
+              widget_id: this.widgetId
+            })
+          });
+          
+          if (!presignResponse.ok) {
+            throw new Error(`Failed to get presigned URL: ${presignResponse.status}`);
+          }
+          
+          const { uploadUrl } = await presignResponse.json();
+          logEvent('Presign response', { uploadUrl, fileKey });
+          
+          // Step 2: Upload file
+          this.dispatchWidgetEvent('upload:progress', { percent: 20 });
+          logEvent('Upload started', { url: uploadUrl });
+          
+          // Upload with progress tracking
+          await this.uploadFile(uploadUrl, file);
+          
+          // Step 3: Process file
+          this.dispatchWidgetEvent('upload:progress', { percent: 90 });
+          this.dispatchWidgetEvent('upload:done', { keys: [fileKey] });
+          logEvent('Processing started', { 
+            endpoint: this.processEndpoint,
+            fileKey: fileKey 
+          });
+          
+          const processResponse = await fetch(this.processEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileKey,
+              anonId: this.anonId,
+              widget_id: this.widgetId
+            })
+          });
+          
+          if (!processResponse.ok) {
+            throw new Error(`Processing failed: ${processResponse.status}`);
+          }
+          
+          // Step 4: Handle response
+          await this.handleResponse(processResponse);
+          this.dispatchWidgetEvent('upload:progress', { percent: 100 });
+          
+        } catch (error) {
+          console.error('Error:', error);
+          this.dispatchWidgetEvent('process:error', { error: error.message });
+          
+          // Show error in result card
+          const textEl = this.resultCard.querySelector('[data-result="text"]');
+          if (textEl) {
+            textEl.textContent = `Error: ${error.message}`;
+            textEl.classList.add('widget-error');
+            this.resultCard.style.display = 'block';
+          }
+          
+          logEvent('Error', { message: error.message });
+        } finally {
+          // Re-enable submit button
+          this.submitBtn.disabled = false;
+          this.submitBtn.textContent = 'Submit';
+        }
+      }
+      
+      // Upload file with progress tracking
+      async uploadFile(uploadUrl, file) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const percent = Math.round((event.loaded / event.total) * 100);
+              const adjustedPercent = 20 + Math.floor(percent * 0.7); // Scale to 20%-90%
+              this.dispatchWidgetEvent('upload:progress', { percent: adjustedPercent });
+            }
+          });
+          
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              logEvent('Upload complete');
+              resolve();
+            } else {
+              reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+          });
+          
+          xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+          xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
+          
+          xhr.open('PUT', uploadUrl);
+          
+          if (file.type) {
+            xhr.setRequestHeader('Content-Type', file.type);
+          }
+          
+          xhr.send(file);
+        });
+      }
+      
+      // Handle response based on output type
+      async handleResponse(response) {
+        // Remove waiting animation
+        this.progressBar.classList.remove('waiting');
+        
+        // Get references to result card elements
+        const headline = this.resultCard.querySelector('[data-result="headline"]');
+        const textContent = this.resultCard.querySelector('[data-result="text"]');
+        const copyBtn = this.resultCard.querySelector('.widget-copy');
+        const singleLink = this.resultCard.querySelector('[data-result="single-link"]');
+        
+        // Process response based on output type
+        switch (this.outputType) {
+          case 'text': {
+            const text = await response.text();
+            logEvent('Response (text)', { text: text.slice(0, 100) + '...' });
+            
+            if (textContent) {
+              textContent.textContent = text;
+              textContent.style.display = 'block';
+            }
+            
+            if (copyBtn) {
+              copyBtn.style.display = 'inline-block';
+            }
+            break;
+          }
+          
+          case 'json': {
+            const data = await response.json();
+            logEvent('Response (json)', data);
+            
+            if (textContent) {
+              const txt = (data && typeof data === 'object' && 'text' in data)
+                ? data.text
+                : JSON.stringify(data, null, 2);
+              
+              textContent.textContent = txt;
+              textContent.style.display = 'block';
+            }
+            
+            if (copyBtn) {
+              copyBtn.style.display = 'inline-block';
+            }
+            break;
+          }
+          
+          case 'file':
+          default: {
+            const isJson = (response.headers.get('content-type') || '').startsWith('application/json');
+            let url;
+            
+            if (isJson) {
+              const data = await response.json();
+              logEvent('Response (file/json)', data);
+              url = data.downloadUrl;
+            } else {
+              const blob = await response.blob();
+              logEvent('Response (file/blob)', { 
+                type: blob.type, 
+                size: blob.size 
+              });
+              url = URL.createObjectURL(blob);
+            }
+            
+            if (singleLink && url) {
+              singleLink.href = url;
+              singleLink.style.display = 'inline-block';
+              
+              if (url.startsWith('blob:')) {
+                singleLink.addEventListener('click', () => {
+                  setTimeout(() => URL.revokeObjectURL(url), 3000);
+                }, { once: true });
+              }
+            }
+            break;
+          }
+        }
+        
+        // Show the result card
+        this.resultCard.style.display = 'block';
+        
+        // Dispatch success event
+        this.dispatchWidgetEvent('process:success', { 
+          outputType: this.outputType
+        });
+      }
+      
+      dispatchWidgetEvent(eventName, detail = {}) {
+        const event = new CustomEvent(eventName, { detail });
+        this.shell.dispatchEvent(event);
+        logEvent(eventName, detail);
+        
+        // Handle specific events internally
+        switch (eventName) {
+          case 'input:ready':
+            this.progressBar.style.width = '0%';
+            this.progressBar.classList.remove('error');
+            this.resultCard.style.display = 'none';
+            break;
+            
+          case 'upload:progress':
+            this.progressBar.style.width = `${detail.percent}%`;
+            break;
+            
+          case 'upload:done':
+            this.progressBar.classList.add('waiting');
+            break;
+            
+          case 'process:success':
+            this.progressBar.classList.remove('waiting');
+            break;
+            
+          case 'process:error':
+            this.progressBar.classList.add('error');
+            this.progressBar.classList.remove('waiting');
+            break;
+        }
+      }
+    }
+    
+    // Helper for event logging
+    function logEvent(name, detail) {
+      const eventsContainer = document.getElementById('events');
+      const event = document.createElement('div');
+      event.className = 'event';
+      
+      const time = new Date().toLocaleTimeString();
+      let detailHtml = '';
+      
+      if (detail) {
+        detailHtml = `<pre>${JSON.stringify(detail, null, 2)}</pre>`;
+      }
+      
+      event.innerHTML = `
+        <div>
+          <span class="event-time">${time}</span>
+          <strong>${name}</strong>
+        </div>
+        ${detailHtml}
+      `;
+      
+      eventsContainer.prepend(event);
+    }
+    
+    // Initialize widgets when the DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      // Find all widget shells
+      document.querySelectorAll('[data-component="WidgetShell"]').forEach(shell => {
+        new WidgetController(shell);
+      });
+      
+      logEvent('Page loaded', { 
+        widgets: Array.from(document.querySelectorAll('[data-component="WidgetShell"]')).map(shell => shell.dataset.widgetId)
+      });
+    });
+  </script>
+</body>
+</html>

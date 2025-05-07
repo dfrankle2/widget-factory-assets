@@ -1,0 +1,115 @@
+<!-- 
+  RESULTCARD COMPONENT TEMPLATE
+  
+  Instructions:
+  1. In Webflow Designer, create a new div
+  2. Copy and paste this entire code block
+  3. Select all elements and create a component named "Result Card"
+  4. Add component properties as described below
+  
+  Component Properties to add:
+  - defaultHeadline (Text): Default headline text
+  - defaultLinkText (Text): Default download link text
+  - defaultKind (Option): text, singleUrl, urlArray
+-->
+
+<div class="result-card" data-component="ResultCard" style="display: none;">
+  <!-- Result headline -->
+  <h3 class="result-headline" data-result="headline">{{defaultHeadline}}</h3>
+  
+  <!-- Text result (for text and JSON outputs) -->
+  <div class="result-text" data-result="text" style="display: none;"></div>
+  
+  <!-- Copy button for text results -->
+  <button class="widget-copy" style="display: none;">Copy</button>
+  
+  <!-- Single download link (for file output) -->
+  <a class="result-link" data-result="single-link" href="#" target="_blank" style="display: none;">{{defaultLinkText}}</a>
+  
+  <!-- Multiple downloads list (for multi-file output) -->
+  <ul class="result-list" data-result="link-list" style="display: none;"></ul>
+  
+  <!-- Slot for custom HTML content -->
+  <div class="result-custom" data-result="extra-html"></div>
+</div>
+
+<!-- 
+  CSS to add to project settings:
+  
+  .result-card {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    background-color: white;
+    width: 100%;
+  }
+  
+  .result-headline {
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+  
+  .result-text {
+    white-space: pre-wrap;
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .result-text.widget-error {
+    color: #f44336;
+  }
+  
+  .widget-copy {
+    margin-top: 10px;
+    padding: 6px 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .result-link {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background-color: #4285f4;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .result-link:hover {
+    background-color: #3367d6;
+  }
+  
+  .result-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0 0;
+  }
+  
+  .result-list li {
+    margin-bottom: 8px;
+  }
+  
+  .result-list a {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #4285f4;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .result-list a:hover {
+    background-color: #3367d6;
+  }
+-->

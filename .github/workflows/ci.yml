@@ -1,0 +1,10 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4        # pulls your repo
+      - uses: aws-actions/setup-sam@v2   # installs SAM CLI
+      - run: sam validate -t infra/template.yaml --region us-east-2

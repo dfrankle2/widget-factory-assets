@@ -1,0 +1,196 @@
+/* 
+  Widget Factory CSS for Webflow Project Settings
+  
+  Instructions:
+  1. Copy this entire CSS file
+  2. In Webflow: Project Settings > Custom Code > Head Code
+  3. Paste inside a <style> tag:
+  
+  <style>
+    /* Paste CSS here */
+  </style>
+*/
+
+/* Widget Shell Styles */
+[data-component="WidgetShell"] {
+  max-width: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+button[type="submit"] {
+  align-self: flex-start;
+  padding: 8px 16px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button[type="submit"]:hover {
+  background-color: #3367d6;
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* FileInput Styles */
+[data-component="FileInput"] {
+  width: 100%;
+}
+
+.dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  border: 2px dashed #ccc;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.2s;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dropzone:hover, .dropzone.dragover {
+  border-color: #4285f4;
+  background-color: rgba(66, 133, 244, 0.05);
+}
+
+.dropzone input[type="file"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* ProgressBar Styles */
+[data-component="ProgressBar"] {
+  width: 100%;
+}
+
+.progress-wrapper {
+  width: 100%;
+  height: 8px;
+  background-color: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background-color: #4285f4;
+  transition: width 0.3s ease;
+}
+
+.progress-bar.waiting {
+  animation: progress-pulse 1.5s infinite;
+}
+
+.progress-bar.error {
+  background-color: #f44336;
+}
+
+@keyframes progress-pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* ResultCard Styles */
+[data-component="ResultCard"] {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 20px;
+  background-color: white;
+  width: 100%;
+}
+
+[data-result="headline"] {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+[data-result="text"] {
+  white-space: pre-wrap;
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+[data-result="text"].widget-error {
+  color: #f44336;
+}
+
+.widget-copy {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+[data-result="single-link"] {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 8px 16px;
+  background-color: #4285f4;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+[data-result="single-link"]:hover {
+  background-color: #3367d6;
+}
+
+[data-result="link-list"] {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0 0 0;
+}
+
+[data-result="link-list"] li {
+  margin-bottom: 8px;
+}
+
+[data-result="link-list"] a {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #4285f4;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+[data-result="link-list"] a:hover {
+  background-color: #3367d6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .dropzone {
+    min-height: 120px;
+  }
+}

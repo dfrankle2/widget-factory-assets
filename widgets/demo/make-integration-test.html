@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Make.com Integration Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    
+    .dropzone {
+      border: 2px dashed #ccc;
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .dropzone:hover, .dropzone.dragover {
+      border-color: #4285f4;
+      background-color: rgba(66, 133, 244, 0.05);
+    }
+    
+    .progress-wrapper {
+      height: 8px;
+      background-color: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #4285f4;
+      transition: width 0.3s ease;
+    }
+    
+    .progress-bar.waiting {
+      animation: pulse 1.5s infinite;
+    }
+    
+    .progress-bar.error {
+      background-color: #f44336;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    
+    .result-card {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+      display: none;
+    }
+    
+    button {
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    
+    [data-result="text"] {
+      white-space: pre-wrap;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    [data-result="single-link"] {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #4285f4;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    
+    .widget-copy {
+      margin-left: 10px;
+      background-color: #f5f5f5;
+      color: #333;
+      border: 1px solid #ddd;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    
+    /* Log area for events */
+    .event-log {
+      margin-top: 40px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .event-log h3 {
+      margin-top: 0;
+    }
+    
+    .event {
+      margin-bottom: 5px;
+      padding: 5px;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .event-time {
+      color: #6c757d;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Make.com Integration Test</h1>
+  <p>This page tests the integration with your existing Make.com webhooks.</p>
+  
+  <div data-component="WidgetShell" 
+       data-widget-id="pdf-to-text"
+       data-output-type="text"
+       data-presign-endpoint="https://hook.us1.make.com/gdcgg8ryb664x79ueclrbnjpj8f7k1wn"
+       data-process-endpoint="https://hook.us1.make.com/mq6panopy0wdk7cuq94xkt9tf2lhriup">
+    
+    <h2>PDF to Text Converter</h2>
+    <p>Upload a PDF document and extract its text content.</p>
+    
+    <div data-component="FileInput" data-max-size="10">
+      <div class="dropzone" style="position: relative;">
+        <input type="file" accept=".pdf">
+        <p>Drag & drop your PDF here, or click to browse</p>
+        <p><small>Maximum size: 10MB</small></p>
+      </div>
+    </div>
+    
+    <button type="submit">Submit</button>
+    
+    <div data-component="ProgressBar">
+      <div class="progress-wrapper">
+        <div class="progress-bar"></div>
+      </div>
+    </div>
+    
+    <div data-component="ResultCard" class="result-card">
+      <h3 data-result="headline">Results</h3>
+      <div data-result="text"></div>
+      <a data-result="single-link" href="#" target="_blank" style="display: none;">Download</a>
+      <button class="widget-copy">Copy</button>
+    </div>
+  </div>
+  
+  <div class="event-log">
+    <h3>Event Log</h3>
+    <div id="events"></div>
+  </div>
+  
+  <script type="module">
+    import WidgetController from '../core/widget.js';
+    
+    // Initialize the widget
+    const widget = new WidgetController();
+    
+    // Set up event logging
+    const eventsContainer = document.getElementById('events');
+    const logEvent = (name, detail) => {
+      const event = document.createElement('div');
+      event.className = 'event';
+      
+      const time = new Date().toLocaleTimeString();
+      const detailText = detail ? JSON.stringify(detail) : '';
+      
+      event.innerHTML = `
+        <span class="event-time">${time}</span>
+        <strong>${name}</strong>
+        ${detailText ? `<pre>${detailText}</pre>` : ''}
+      `;
+      
+      eventsContainer.prepend(event);
+    };
+    
+    // Listen for widget events
+    const shell = document.querySelector('[data-component="WidgetShell"]');
+    
+    shell.addEventListener('input:ready', () => {
+      logEvent('input:ready');
+    });
+    
+    shell.addEventListener('upload:progress', (e) => {
+      logEvent('upload:progress', e.detail);
+    });
+    
+    shell.addEventListener('upload:done', (e) => {
+      logEvent('upload:done', e.detail);
+    });
+    
+    shell.addEventListener('process:success', (e) => {
+      logEvent('process:success', e.detail);
+    });
+    
+    shell.addEventListener('process:error', (e) => {
+      logEvent('process:error', e.detail);
+    });
+    
+    // Add copy button functionality
+    const copyBtn = document.querySelector('.widget-copy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const text = document.querySelector('[data-result="text"]').textContent;
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => copyBtn.textContent = 'Copy', 1500);
+          });
+      });
+    }
+  </script>
+</body>
+</html>

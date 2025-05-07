@@ -1,0 +1,53 @@
+name: Sync Public Assets
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'widgets/core/**'
+      - 'widgets/webflow-templates/**'
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  sync-public-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+      - name: Check out public-assets branch
+        run: |
+          git checkout public-assets
+          
+      - name: Update assets from main branch
+        run: |
+          # Copy latest widget core files from main branch
+          git checkout main -- widgets/core/widget.js
+          git checkout main -- widgets/core/widget.min.js
+          git checkout main -- widgets/core/widget-styles.css
+          git checkout main -- widgets/core/widget.d.ts
+          git checkout main -- widgets/core/COMPONENT-ATTRIBUTES.md
+          git checkout main -- widgets/core/WEBFLOW-IMPLEMENTATION-GUIDE.md
+          
+          # Copy latest webflow template files
+          git checkout main -- widgets/webflow-templates/
+          
+          # Copy documentation
+          mkdir -p docs
+          git checkout main -- docs/
+          
+          # Commit changes
+          git add -A
+          git commit -m "sync: update public assets from main branch [skip ci]" || echo "No changes to commit"
+      
+      - name: Push to public repository
+        run: |
+          git remote add assets https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/dfrankle2/widget-factory-assets.git
+          git push --force assets public-assets:main

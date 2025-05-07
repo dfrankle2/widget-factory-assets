@@ -1,0 +1,81 @@
+<!-- 
+  WIDGETSHELL COMPONENT TEMPLATE
+  
+  Instructions:
+  1. In Webflow Designer, create a new div
+  2. Copy and paste this entire code block
+  3. Select all elements and create a component named "Widget Shell"
+  4. Add component properties as described below
+  
+  Component Properties to add:
+  - widgetId (Text): Unique identifier for this widget
+  - title (Text): Widget title
+  - subtitle (Text): Widget subtitle
+  - outputType (Option): text, json, file
+  - presignEndpoint (Text, optional): Custom presign webhook URL
+  - processEndpoint (Text, optional): Custom process webhook URL
+-->
+
+<div class="widget-shell"
+     data-component="WidgetShell" 
+     data-widget-id="{{widgetId}}"
+     data-output-type="{{outputType}}"
+     data-presign-endpoint="{{presignEndpoint}}"
+     data-process-endpoint="{{processEndpoint}}">
+  
+  <!-- Widget Header -->
+  <div class="widget-header">
+    <h2>{{title}}</h2>
+    <p>{{subtitle}}</p>
+  </div>
+  
+  <!-- FileInput Slot -->
+  <div class="widget-input-slot">
+    <!-- FileInput component will go here -->
+  </div>
+  
+  <!-- Submit Button -->
+  <button type="submit" class="widget-submit-button">Submit</button>
+  
+  <!-- ProgressBar Slot -->
+  <div class="widget-progress-slot">
+    <!-- ProgressBar component will go here -->
+  </div>
+  
+  <!-- ResultCard Slot -->
+  <div class="widget-result-slot">
+    <!-- ResultCard component will go here -->
+  </div>
+</div>
+
+<!-- 
+  CSS to add to project settings:
+  
+  .widget-shell {
+    max-width: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .widget-submit-button {
+    align-self: flex-start;
+    padding: 8px 16px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .widget-submit-button:hover {
+    background-color: #3367d6;
+  }
+  
+  .widget-submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+-->

@@ -1,0 +1,44 @@
+name: Update public assets branch
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'widgets/core/**'
+      - 'widgets/webflow-templates/**'
+      - 'docs/**'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  update-public-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get all history for proper branch handling
+      
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+      - name: Check out public-assets branch
+        run: |
+          git checkout public-assets || git checkout -b public-assets
+          
+      - name: Update assets from main branch
+        run: |
+          # Copy latest widget core files from main branch
+          git checkout main -- widgets/core
+          git checkout main -- widgets/webflow-templates
+          git checkout main -- docs
+          
+          # Copy README
+          git checkout main -- README.md
+          
+          # Commit changes
+          git add -A
+          git diff-index --quiet HEAD || git commit -m "Update public assets from main branch"
+      
+      - name: Push to public-assets branch
+        run: |
+          git push origin public-assets

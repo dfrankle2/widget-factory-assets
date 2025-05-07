@@ -1,0 +1,35 @@
+<!-- 
+  Widget Factory JS for Webflow Project Settings
+  
+  Instructions:
+  1. Copy this entire file
+  2. In Webflow: Project Settings > Custom Code > Footer Code
+  3. Paste the code
+  4. Make sure to update the CDN URL to where you host widget.js
+-->
+
+<script type="module">
+  // Import the widget controller from your CDN
+  import WidgetController from 'https://your-cdn.com/widgets/core/widget.min.js';
+  
+  // Initialize all widgets on the page
+  document.addEventListener('DOMContentLoaded', () => {
+    // Look for all WidgetShell components
+    document.querySelectorAll('[data-component="WidgetShell"]').forEach(shell => {
+      new WidgetController(`[data-component="WidgetShell"][data-widget-id="${shell.dataset.widgetId}"]`);
+      console.log(`Initialized widget: ${shell.dataset.widgetId}`);
+    });
+    
+    // Add copy button functionality
+    document.querySelectorAll('.widget-copy').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.closest('[data-component="ResultCard"]').querySelector('[data-result="text"]').textContent;
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 1500);
+          });
+      });
+    });
+  });
+</script>

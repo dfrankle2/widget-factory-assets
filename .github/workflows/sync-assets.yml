@@ -1,0 +1,34 @@
+name: Publish assets to public repo
+on:
+  push:
+    branches: [ public-assets ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get all history for proper branch handling
+      
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+      
+      - name: Push to widget-factory-assets
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          # Set up SSH key for authentication
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+          
+          # Add the public repo as a remote and push
+          git remote add assets git@github.com:dfrankle2/widget-factory-assets.git
+          git push --force assets HEAD:main
+          
+          echo "Successfully pushed to widget-factory-assets public repository"

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webflow Widget Factory Demo</title>
+  <style>
+    :root {
+      --brand-hue: 210;
+      --brand-primary: hsl(var(--brand-hue), 80%, 50%);
+      --brand-accent: hsl(var(--brand-hue), 70%, 60%);
+      --progress-height: 8px;
+      --border-radius: 6px;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    body {
+      font-family: var(--font-family);
+      line-height: 1.5;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #333;
+    }
+    
+    h1, h2, h3 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      margin-bottom: 1rem;
+    }
+    
+    /* WidgetShell styles */
+    [data-component="WidgetShell"] {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 3rem;
+    }
+    
+    /* FileInput styles */
+    [data-component="FileInput"] {
+      width: 100%;
+    }
+    
+    .dropzone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 160px;
+      border: 2px dashed #b3c7c2;
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      text-align: center;
+      transition: background-color 0.2s, border-color 0.2s;
+      position: relative;
+    }
+    
+    .dropzone:hover, .dropzone.dragover {
+      background-color: rgba(0, 0, 0, 0.02);
+      border-color: var(--brand-accent);
+    }
+    
+    .dropzone input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    
+    /* ProgressBar styles */
+    [data-component="ProgressBar"] {
+      width: 100%;
+    }
+    
+    .progress-wrapper {
+      width: 100%;
+      height: var(--progress-height);
+      background-color: #e8edea;
+      border-radius: var(--progress-height);
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: var(--brand-accent);
+      transition: width 0.3s ease;
+    }
+    
+    .progress-bar.waiting {
+      animation: pulse 1.5s infinite;
+    }
+    
+    .progress-bar.error {
+      background-color: #f44336;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    
+    /* ResultCard styles */
+    [data-component="ResultCard"] {
+      display: none;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      background-color: #fff;
+      border: 1px solid #e0e0e0;
+    }
+    
+    [data-result="headline"] {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+    
+    [data-result="text"] {
+      white-space: pre-wrap;
+      background-color: #f5f5f5;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    
+    [data-result="single-link"] {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: var(--brand-primary);
+      color: white;
+      text-decoration: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+    }
+    
+    [data-result="link-list"] {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0 0;
+    }
+    
+    [data-result="link-list"] li {
+      margin-bottom: 0.5rem;
+    }
+    
+    [data-result="link-list"] a {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: var(--brand-primary);
+      color: white;
+      text-decoration: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+    }
+    
+    /* Apply theme hue when set */
+    [data-theme-hue] {
+      --brand-hue: attr(data-theme-hue number, 210);
+    }
+  </style>
+</head>
+<body>
+  <h1>Webflow Widget Factory Demo</h1>
+  <p>This demo shows how to implement the component-based widget system.</p>
+  
+  <!-- PDF to Text Widget -->
+  <section data-component="WidgetShell" 
+           data-widget-id="pdf-to-text"
+           data-presign-endpoint="https://hook.us1.make.com/gdcgg8ryb664x79ueclrbnjpj8f7k1wn"
+           data-process-endpoint="https://hook.us1.make.com/mq6panopy0wdk7cuq94xkt9tf2lhriup"
+           data-theme-hue="210">
+    
+    <div>
+      <h2>PDF to Text Converter</h2>
+      <p>Upload a PDF document and extract its text content.</p>
+    </div>
+    
+    <!-- File Input Component -->
+    <div data-component="FileInput" data-max-size="10">
+      <div class="dropzone">
+        <input type="file" accept=".pdf">
+        <p>Drag &amp; drop your PDF here, or click to browse</p>
+        <p><small>Maximum size: 10MB</small></p>
+      </div>
+    </div>
+    
+    <!-- Progress Bar Component -->
+    <div data-component="ProgressBar">
+      <div class="progress-wrapper">
+        <div class="progress-bar"></div>
+      </div>
+    </div>
+    
+    <!-- Result Card Component -->
+    <div data-component="ResultCard" data-default-kind="text">
+      <h3 data-result="headline">Success!</h3>
+      <div data-result="text"></div>
+      <a data-result="single-link" href="#" target="_blank">Download</a>
+      <ul data-result="link-list"></ul>
+    </div>
+  </section>
+  
+  <!-- Image Conversion Widget -->
+  <section data-component="WidgetShell"
+           data-widget-id="image-to-png"
+           data-presign-endpoint="https://hook.us1.make.com/gdcgg8ryb664x79ueclrbnjpj8f7k1wn"
+           data-process-endpoint="https://hook.us1.make.com/mq6panopy0wdk7cuq94xkt9tf2lhriup"
+           data-theme-hue="280">
+    
+    <div>
+      <h2>Image to PNG Converter</h2>
+      <p>Upload an image and convert it to optimized PNG format.</p>
+    </div>
+    
+    <!-- File Input Component -->
+    <div data-component="FileInput" data-max-size="5">
+      <div class="dropzone">
+        <input type="file" accept=".jpg,.jpeg,.gif,.bmp">
+        <p>Drag &amp; drop your image here, or click to browse</p>
+        <p><small>Accepts: JPG, GIF, BMP (max 5MB)</small></p>
+      </div>
+    </div>
+    
+    <!-- Progress Bar Component -->
+    <div data-component="ProgressBar">
+      <div class="progress-wrapper">
+        <div class="progress-bar"></div>
+      </div>
+    </div>
+    
+    <!-- Result Card Component -->
+    <div data-component="ResultCard" data-default-kind="singleUrl">
+      <h3 data-result="headline">Conversion Complete</h3>
+      <div data-result="text"></div>
+      <a data-result="single-link" href="#" target="_blank">Download PNG</a>
+      <ul data-result="link-list"></ul>
+    </div>
+  </section>
+  
+  <footer>
+    <p>Widget Factory Documentation: <a href="../core/WEBFLOW-IMPLEMENTATION-GUIDE.md">Implementation Guide</a></p>
+  </footer>
+  
+  <script type="module">
+    import WidgetController from '../core/widget.js';
+    // The controller auto-initializes on DOMContentLoaded
+    
+    // Example of adding custom event listeners
+    document.querySelector('[data-widget-id="pdf-to-text"]').addEventListener('process:success', (e) => {
+      console.log('PDF processing results:', e.detail);
+    });
+  </script>
+</body>
+</html>
