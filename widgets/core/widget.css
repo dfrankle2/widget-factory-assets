@@ -189,6 +189,25 @@
   display: none !important;
 }
 
+/* CTA styles */
+.widget-cta {
+  margin-top: var(--wf-widget-spacing-md, 16px);
+  padding: 8px 16px;
+  background: var(--wf-widget-primary, #4285f4);
+  color: #fff;
+  border-radius: var(--wf-widget-border-radius, 6px);
+  font-weight: 600;
+  display: inline-block;
+  transition: background-color .2s;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.widget-cta:hover { 
+  background: var(--wf-widget-primary-dark, #3367d6); 
+}
+
 /* Responsive adjustments */
 @media (max-width: 767px) {
   .dropzone {

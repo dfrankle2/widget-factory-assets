@@ -259,9 +259,6 @@ class WidgetController {
     // Get references to result card elements
     const headline = this.resultCard.querySelector('[data-result="headline"]');
     const textContent = this.resultCard.querySelector('[data-result="text"]');
-    const copyBtn = this.resultCard.querySelector('.widget-copy') || 
-                    this.resultCard.querySelector('.u-widget-copy') ||
-                    this.resultCard.querySelector('[data-action="copy"]');
     
     // Remove any error classes
     if (textContent) textContent.classList.remove('widget-error');
@@ -270,10 +267,11 @@ class WidgetController {
       // Plain text output
       case 'text': {
         if (textContent) {
-          textContent.textContent = await response.text();
+          const txt = await response.text();
+          textContent.textContent = txt;
           textContent.style.display = 'block';
+          this.renderCTA('copy', txt);
         }
-        if (copyBtn) copyBtn.style.display = 'inline-block';
         break;
       }
       
@@ -286,8 +284,8 @@ class WidgetController {
             : JSON.stringify(data, null, 2);
           textContent.textContent = txt;
           textContent.style.display = 'block';
+          this.renderCTA('copy', txt);
         }
-        if (copyBtn) copyBtn.style.display = 'inline-block';
         break;
       }
       
@@ -305,7 +303,7 @@ class WidgetController {
           url = URL.createObjectURL(blob);
         }
         
-        this.injectDownloadButton(url);
+        this.renderCTA('download', url);
         break;
       }
     }
@@ -320,43 +318,61 @@ class WidgetController {
     });
   }
   
-  // Inject download button - similar to existing implementation
-  injectDownloadButton(url) {
-    if (!url) return;
-    
-    const singleLink = this.resultCard.querySelector('[data-result="single-link"]');
-    if (singleLink) {
-      singleLink.href = url;
-      singleLink.style.display = 'inline-block';
+  /* ------------------------------------------------- */
+  /*  CTA factory                                      */
+  /* ------------------------------------------------- */
+  renderCTA(kind, payload) {
+    // remove previous CTA, if any
+    this.resultCard.querySelectorAll('.widget-cta').forEach(el => el.remove());
+
+    if (kind === 'copy') {
+      const btn = document.createElement('button');
+      btn.className = 'widget-cta widget-copy u-widget-copy u-button-ghost';
+      btn.textContent = 'Copy text';
+      btn.onclick = () => {
+        navigator.clipboard.writeText(payload).then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => (btn.textContent = 'Copy text'), 1500);
+        });
+      };
+      this.resultCard.appendChild(btn);
+    }
+
+    if (kind === 'download') {
+      // Check for existing link element first (backward compatibility)
+      const singleLink = this.resultCard.querySelector('[data-result="single-link"]');
+      if (singleLink) {
+        singleLink.href = payload;
+        singleLink.style.display = 'inline-block';
+        singleLink.className = 'widget-cta widget-download u-widget-download u-button-ghost';
+        
+        if (payload.startsWith('blob:')) {
+          singleLink.addEventListener('click', () => {
+            setTimeout(() => URL.revokeObjectURL(payload), 3000);
+          }, { once: true });
+        }
+        return;
+      }
       
-      if (url.startsWith('blob:')) {
-        singleLink.addEventListener('click', () => {
-          setTimeout(() => URL.revokeObjectURL(url), 3000);
+      // Create new link if none exists
+      const a = document.createElement('a');
+      a.className = 'widget-cta widget-download u-widget-download u-button-ghost';
+      a.textContent = this.shell.dataset.ctaLabel || 'Download';
+      a.href = payload;
+      a.download = ''; // let browser pick filename
+      
+      // If we have a template for filenames
+      if (this.shell.dataset.fnameTpl) {
+        a.download = this.shell.dataset.fnameTpl.replace('{{slug}}', this.shell.dataset.slug || 'file');
+      }
+      
+      this.resultCard.appendChild(a);
+      
+      if (payload.startsWith('blob:')) {
+        a.addEventListener('click', () => {
+          setTimeout(() => URL.revokeObjectURL(payload), 3000);
         }, { once: true });
       }
-      return;
-    }
-    
-    // If no existing link element, create one (backwards compatibility)
-    const label = this.shell.dataset.ctaLabel || 'Download';
-    const a = document.createElement('a');
-    a.href = url;
-    a.textContent = label;
-    a.className = 'widget-download u-widget-download'; // Add both classes for compatibility
-    a.target = '_blank';
-    
-    // If we have a template for filenames
-    if (this.shell.dataset.fnameTpl) {
-      a.download = this.shell.dataset.fnameTpl.replace('{{slug}}', this.shell.dataset.slug || 'file');
-    }
-    
-    // Append to result card
-    this.resultCard.insertAdjacentElement('beforeend', a);
-    
-    if (url.startsWith('blob:')) {
-      a.addEventListener('click', () => {
-        setTimeout(() => URL.revokeObjectURL(url), 3000);
-      }, { once: true });
     }
   }
   
