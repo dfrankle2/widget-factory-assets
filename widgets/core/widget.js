@@ -154,7 +154,7 @@ class WidgetController {
         break;
         
       case 'process:success':
-        this.handleProcessSuccess(detail);
+        // We don't need to handle this here as it's managed in handleResponse already
         break;
         
       case 'process:error':
