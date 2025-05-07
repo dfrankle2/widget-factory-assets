@@ -8,10 +8,10 @@ Add these two tags to your Webflow project:
 
 ```html
 <!-- In Webflow > Project Settings > Custom Code > Head -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css">
 
 <!-- In Webflow > Project Settings > Custom Code > Footer -->
-<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.min.js"></script>
+<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js"></script>
 ```
 
 ## Detailed Steps
@@ -20,8 +20,8 @@ Add these two tags to your Webflow project:
 
 The Widget Factory files are served from jsDelivr using these URLs:
 
-- **CSS**: `https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.css`
-- **JS**: `https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.min.js`
+- **CSS**: `https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css`
+- **JS**: `https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js`
 
 ### 2. Adding to Webflow
 
@@ -32,13 +32,13 @@ This adds the widget system to your entire Webflow site:
 1. Go to **Project Settings** > **Custom Code**
 2. In the **Head Code** section, add:
    ```html
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.css">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css">
    ```
 3. In the **Footer Code** section, add:
    ```html
    <script type="module">
      // Import the widget controller from jsDelivr CDN
-     import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.min.js';
+     import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js';
      
      // Initialize all widgets on the page
      document.addEventListener('DOMContentLoaded', () => {
@@ -75,66 +75,68 @@ If you only need widgets on specific pages:
 If you have multiple CSS or JS files to load, you can use jsDelivr's combine feature:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/combine/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.css,gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/theme/dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/combine/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css,gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/theme/dark.css">
 
-<script type="module" defer src="https://cdn.jsdelivr.net/combine/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.min.js,gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/utils/uploader.min.js"></script>
+<script type="module" defer src="https://cdn.jsdelivr.net/combine/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js,gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/utils/uploader.min.js"></script>
 ```
 
 ### 4. Version Control
 
-For production use, we're using the version tag `@v1.0.0` for stability:
+For production use, we're using the version tag `@v1.0.1` for stability:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.css">
-<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css">
+<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js"></script>
 ```
 
 For cache busting without changing the version, add a query parameter:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.css?v=2025-05-07">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css?v=2025-05-07">
 ```
 
 ## Critical Structure Requirements
 
-To avoid "Missing required components" errors, ensure your widget markup follows this exact structure:
+To avoid "Missing required components" errors, your widget must follow this exact structure:
 
 ```html
 <section data-component="WidgetShell"
-         data-widget-id="unique-id"
-         data-presign-endpoint="your-webhook-url"
-         data-process-endpoint="your-webhook-url"
-         data-output-type="text">
-  
-  <!-- FileInput MUST contain input[type=file] -->
-  <div data-component="FileInput" data-max-size="10" data-accept=".pdf">
+       data-widget-id="unique-id"
+       data-presign-endpoint="your-webhook-url"
+       data-process-endpoint="your-webhook-url"
+       data-output-type="text">
+
+  <!-- FileInput MUST contain <input type="file"> -->
+  <div data-component="FileInput">
     <div class="dropzone">
-      <input type="file" accept=".pdf">
-      <!-- Dropzone content -->
+      Drop your file here
+      <input type="file" accept=".pdf" />  <!-- This element is REQUIRED -->
     </div>
   </div>
-  
-  <!-- ProgressBar needs progress-bar class -->
+
+  <!-- ProgressBar MUST contain element with class="progress-bar" -->
   <div data-component="ProgressBar">
-    <div class="progress-wrapper">
-      <div class="progress-bar"></div>
-    </div>
+    <div class="progress-bar"></div>
   </div>
-  
-  <!-- ResultCard with proper data attributes -->
-  <div data-component="ResultCard" data-default-kind="text">
+
+  <!-- ResultCard -->
+  <div data-component="ResultCard">
     <h3 data-result="headline"></h3>
     <div data-result="text"></div>
-    <!-- Other result elements -->
+    <ul data-result="link-list"></ul>
+    <a data-result="single-link"></a>
   </div>
 </section>
 ```
 
-Common issues to check:
-- FileInput MUST contain `<input type="file">` element
-- The dropzone element MUST have class="dropzone"
-- ProgressBar MUST contain an element with class="progress-bar"
-- Use data-output-type (not dataset-outputtype)
-- All data attributes must use kebab-case in HTML
+The most common initialization failures are:
+
+1. **Missing input element**: `this.input = this.shell.querySelector('[data-component="FileInput"] input[type=file]')` fails when the input element is missing.
+
+2. **Case-sensitive attributes**: Use `data-output-type="text"` **not** `dataset-outputtype="text"` (HTML attributes are case-sensitive).
+
+3. **Dropzone class**: The element must have `class="dropzone"` - the controller specifically looks for this class name.
+
+4. **Progress bar class**: The controller looks for an element with `class="progress-bar"` inside the ProgressBar component.
 
 ## Testing Your Integration
 
@@ -148,13 +150,18 @@ After adding the code and publishing your Webflow site:
 
 ## Troubleshooting
 
-If your widget doesn't work:
+If you see "Missing required components" error:
 
-- **Missing Required Components Error**: Follow the Critical Structure Requirements above
+1. Check for `<input type="file">` inside your FileInput component
+2. Make sure you have an element with `class="dropzone"`
+3. Verify you're using `data-output-type` not `dataset-outputtype`
+4. Check for an element with `class="progress-bar"` inside ProgressBar
+5. Verify all HTML attributes use kebab-case (dashes, not camelCase)
+
+Other potential issues:
 - **404 Errors**: Check that the file paths in your CDN URLs are correct
-- **CORS Issues**: jsDelivr should handle this, but check if your browser is blocking any requests
+- **CORS Issues**: jsDelivr should handle this, but check browser network requests
 - **Console Errors**: Look for JavaScript errors in the browser console
-- **Missing Components**: Ensure you've added all the required Webflow components as described in the implementation guide
 
 ## Keeping Up to Date
 
@@ -163,5 +170,5 @@ For development and testing:
 - Add a query string parameter for cache busting: `?v=20250507`
 
 For production:
-- Use the stable v1.0.0 version tag: `@v1.0.0`
+- Use the stable v1.0.1 version tag: `@v1.0.1`
 - Future versions will be tagged as needed
