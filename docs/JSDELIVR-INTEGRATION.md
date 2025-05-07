@@ -8,10 +8,10 @@ Add these two tags to your Webflow project:
 
 ```html
 <!-- In Webflow > Project Settings > Custom Code > Head -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.css">
 
 <!-- In Webflow > Project Settings > Custom Code > Footer -->
-<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.min.js"></script>
+<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.min.js"></script>
 ```
 
 ## Detailed Steps
@@ -82,21 +82,23 @@ If you have multiple CSS or JS files to load, you can use jsDelivr's combine fea
 
 ### 4. Version Control
 
-For production use, we're using the version tag `@v1.0.2` for stability:
+For production use, we're using the version tag `@v1.1.0` for stability:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css">
-<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.css">
+<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.min.js"></script>
 ```
 
 For cache busting without changing the version, add a query parameter:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css?v=2025-05-07">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.css?v=2025-05-07">
 ```
 
 ## Critical Structure Requirements
 
 To avoid "Missing required components" errors, your widget must follow this exact structure:
+
+> **New in v1.1.0**: The widget controller now supports Webflow's naming conventions with `u-` prefixed classes. You can use either `.progress-bar` or `.u-progress-bar`, `.dropzone` or `.u-dropzone`, and so on.
 
 ```html
 <section data-component="WidgetShell"
@@ -170,5 +172,5 @@ For development and testing:
 - Add a query string parameter for cache busting: `?v=20250507`
 
 For production:
-- Use the stable v1.0.1 version tag: `@v1.0.2`
+- Use the stable v1.1.0 version tag: `@v1.1.0`
 - Future versions will be tagged as needed

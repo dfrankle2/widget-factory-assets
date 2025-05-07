@@ -124,7 +124,7 @@ The WidgetShell coordinates all the other components.
 ```html
 <script type="module">
   // Import the widget controller from jsDelivr CDN
-  import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.min.js';
+  import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.min.js';
   
   // Initialize all widgets on the page
   document.addEventListener('DOMContentLoaded', () => {
@@ -152,7 +152,7 @@ The WidgetShell coordinates all the other components.
 Also add the CSS in the head section:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.css">
 ```
 
 ## Creating a New Widget Instance
@@ -179,6 +179,8 @@ Once your components are created, adding a new widget is simple:
 ## Critical Structure Requirements
 
 To avoid "Missing required components" errors, ensure your widget follows this exact structure:
+
+> **Note**: As of v1.1.0, the widget controller supports Webflow's `u-` prefixed classes. You can use either `.progress-bar` or `.u-progress-bar`, `.dropzone` or `.u-dropzone`, etc.
 
 ```html
 <section data-component="WidgetShell"

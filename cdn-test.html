@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Widget CDN Test</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.css">
+</head>
+<body>
+    <h1>Widget CDN Test</h1>
+    
+    <section data-component="WidgetShell"
+             data-widget-id="test-widget"
+             data-presign-endpoint="https://hook.us1.make.com/gdcgg8ryb664x79ueclrbnjpj8f7k1wn"
+             data-process-endpoint="https://hook.us1.make.com/mq6panopy0wdk7cuq94xkt9tf2lhriup"
+             data-output-type="text">
+
+        <div data-component="FileInput">
+            <div class="dropzone">
+                Drop your file here
+                <input type="file" accept=".pdf">
+            </div>
+        </div>
+        
+        <div data-component="ProgressBar">
+            <div class="progress-bar"></div>
+        </div>
+        
+        <div data-component="ResultCard">
+            <h3 data-result="headline">Results</h3>
+            <div data-result="text"></div>
+            <ul data-result="link-list"></ul>
+            <a data-result="single-link"></a>
+        </div>
+    </section>
+
+    <script type="module">
+        // Import the widget controller - use the non-compressed version for debugging
+        import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.0/widgets/core/widget.js';
+        
+        // Initialize all widgets
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-component="WidgetShell"]').forEach(shell => {
+                try {
+                    console.log("Initializing widget:", shell.dataset.widgetId);
+                    new WidgetController(`[data-component="WidgetShell"][data-widget-id="${shell.dataset.widgetId}"]`);
+                    console.log("Widget initialized successfully:", shell.dataset.widgetId);
+                } catch (error) {
+                    console.error("Widget initialization failed:", error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
