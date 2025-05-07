@@ -32,6 +32,7 @@ The ResultCard displays the results after processing is complete.
    - Link (a) with attribute `data-result="single-link"` (style display: none)
    - Unordered list (ul) with attribute `data-result="link-list"` (style display: none)
    - Optional div with attribute `data-result="extra-html"`
+   - Add a button with class `widget-copy` for the copy functionality
 
 3. Select the entire card and click "Create Component" in the top right
 4. Name it "ResultCard"
@@ -70,7 +71,7 @@ The FileInput handles file selection with drag-and-drop functionality.
    - Appropriate padding and hover states
 
 2. Inside, add:
-   - A file input element (`<input type="file">`)
+   - A file input element (`<input type="file">`) - **CRITICAL: This must be present**
    - Instructions text ("Drag & drop files here or click to browse")
 
 3. Select the wrapper div and click "Create Component"
@@ -105,6 +106,7 @@ The WidgetShell coordinates all the other components.
    - A text field for "subtitle"
    - A text field for "presignEndpoint" (webhook URL)
    - A text field for "processEndpoint" (webhook URL)
+   - A text field for "outputType" (text or file)
    - A color field for "themeColor"
 
 6. Set the `data-component="WidgetShell"` attribute on the root element
@@ -112,6 +114,7 @@ The WidgetShell coordinates all the other components.
    - `data-widget-id="{{widgetId}}"`
    - `data-presign-endpoint="{{presignEndpoint}}"`
    - `data-process-endpoint="{{processEndpoint}}"`
+   - `data-output-type="{{outputType}}"`
 
 ## Adding the JavaScript Code
 
@@ -120,14 +123,37 @@ The WidgetShell coordinates all the other components.
 
 ```html
 <script type="module">
-  // Import the widget controller
-  import WidgetController from 'https://cdn.yourdomain.com/widgets/core/widget.js';
+  // Import the widget controller from jsDelivr CDN
+  import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.min.js';
   
-  // The controller will auto-initialize on DOMContentLoaded
+  // Initialize all widgets on the page
+  document.addEventListener('DOMContentLoaded', () => {
+    // Look for all WidgetShell components
+    document.querySelectorAll('[data-component="WidgetShell"]').forEach(shell => {
+      new WidgetController(`[data-component="WidgetShell"][data-widget-id="${shell.dataset.widgetId}"]`);
+      console.log(`Initialized widget: ${shell.dataset.widgetId}`);
+    });
+    
+    // Add copy button functionality
+    document.querySelectorAll('.widget-copy').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.closest('[data-component="ResultCard"]').querySelector('[data-result="text"]').textContent;
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 1500);
+          });
+      });
+    });
+  });
 </script>
 ```
 
-Make sure to replace `https://cdn.yourdomain.com/widgets/core/widget.js` with the actual URL where you host the widget.js file.
+Also add the CSS in the head section:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.0/widgets/core/widget.css">
+```
 
 ## Creating a New Widget Instance
 
@@ -137,6 +163,7 @@ Once your components are created, adding a new widget is simple:
 2. Configure its properties:
    - Set a unique widgetId (e.g., "pdf-to-text")
    - Set the presignEndpoint and processEndpoint webhook URLs
+   - Set the outputType to "text" or "file"
    - Customize title and subtitle
 
 3. Inside the FileInput slot, add a FileInput component instance
@@ -148,6 +175,48 @@ Once your components are created, adding a new widget is simple:
 5. Inside the ProgressBar slot, add a ProgressBar component
 6. Inside the ResultCard slot, add a ResultCard component
 7. Configure the ResultCard properties based on expected output type
+
+## Critical Structure Requirements
+
+To avoid "Missing required components" errors, ensure your widget follows this exact structure:
+
+```html
+<section data-component="WidgetShell"
+         data-widget-id="unique-id"
+         data-presign-endpoint="your-webhook-url"
+         data-process-endpoint="your-webhook-url"
+         data-output-type="text">
+  
+  <!-- FileInput MUST contain input[type=file] -->
+  <div data-component="FileInput" data-max-size="10" data-accept=".pdf">
+    <div class="dropzone">
+      <input type="file" accept=".pdf">
+      <!-- Dropzone content -->
+    </div>
+  </div>
+  
+  <!-- ProgressBar needs progress-bar class -->
+  <div data-component="ProgressBar">
+    <div class="progress-wrapper">
+      <div class="progress-bar"></div>
+    </div>
+  </div>
+  
+  <!-- ResultCard with proper data attributes -->
+  <div data-component="ResultCard" data-default-kind="text">
+    <h3 data-result="headline"></h3>
+    <div data-result="text"></div>
+    <!-- Other result elements -->
+  </div>
+</section>
+```
+
+Common issues to check:
+- FileInput MUST contain `<input type="file">` element
+- The dropzone element MUST have class="dropzone"
+- ProgressBar MUST contain an element with class="progress-bar"
+- Use data-output-type (not dataset-outputtype)
+- All data attributes must use kebab-case in HTML
 
 ## Integration with Make.com
 
@@ -200,58 +269,89 @@ Your Make.com scenarios need to handle two main webhooks:
 ### PDF to Text Widget
 
 ```html
-<div data-component="WidgetShell" 
+<section data-component="WidgetShell" 
      data-widget-id="pdf-to-text"
      data-presign-endpoint="https://hook.us1.make.com/your-presign-hook"
-     data-process-endpoint="https://hook.us1.make.com/your-process-hook">
+     data-process-endpoint="https://hook.us1.make.com/your-process-hook"
+     data-output-type="text">
   
   <h2>PDF to Text Converter</h2>
   <p>Upload a PDF and get extracted text</p>
   
   <div data-component="FileInput" data-accept=".pdf" data-max-size="10">
-    <!-- FileInput contents -->
+    <div class="dropzone">
+      <input type="file" accept=".pdf">
+      <div class="dropzone-content">
+        <p>Drop file here or click to browse</p>
+      </div>
+    </div>
   </div>
   
   <div data-component="ProgressBar">
-    <!-- ProgressBar contents -->
+    <div class="progress-wrapper">
+      <div class="progress-bar"></div>
+    </div>
   </div>
   
   <div data-component="ResultCard" data-default-kind="text">
-    <!-- ResultCard contents -->
+    <h3 data-result="headline">Extracted Text</h3>
+    <div data-result="text"></div>
+    <button class="widget-copy">Copy</button>
+    <a data-result="single-link" style="display: none;"></a>
+    <ul data-result="link-list" style="display: none;"></ul>
   </div>
-</div>
+</section>
 ```
 
-### Image to PNG Converter
+### Audio to Text Widget
 
 ```html
-<div data-component="WidgetShell" 
-     data-widget-id="image-to-png"
-     data-presign-endpoint="https://hook.us1.make.com/your-presign-hook"
-     data-process-endpoint="https://hook.us1.make.com/your-process-hook">
-  
-  <h2>Image to PNG Converter</h2>
-  <p>Upload any image and convert to PNG</p>
-  
-  <div data-component="FileInput" data-accept=".jpg,.jpeg,.gif,.bmp" data-max-size="5">
-    <!-- FileInput contents -->
+<section data-component="WidgetShell"
+         data-widget-id="audio-transcript"
+         data-presign-endpoint="https://hook.us1.make.com/your-presign-hook"
+         data-process-endpoint="https://hook.us1.make.com/your-process-hook"
+         data-output-type="text">
+
+  <h2>MP3 to Text</h2>
+  <p>Audio file to transcript.</p>
+
+  <div data-component="FileInput" data-max-size="20" data-accept=".mp3,.wav,.m4a">
+    <div class="dropzone">
+      <input type="file" accept=".mp3,.wav,.m4a">
+      <div class="dropzone-content">
+        <p>Upload audio file</p>
+      </div>
+    </div>
   </div>
   
   <div data-component="ProgressBar">
-    <!-- ProgressBar contents -->
+    <div class="progress-wrapper">
+      <div class="progress-bar"></div>
+    </div>
   </div>
   
-  <div data-component="ResultCard" data-default-kind="singleUrl">
-    <!-- ResultCard contents -->
+  <div data-component="ResultCard" data-default-kind="text">
+    <h3 data-result="headline">Transcription</h3>
+    <div data-result="text"></div>
+    <button class="widget-copy">Copy</button>
+    <a data-result="single-link" style="display: none;"></a>
+    <ul data-result="link-list" style="display: none;"></ul>
   </div>
-</div>
+</section>
 ```
 
 ## Troubleshooting
 
-- **Widget doesn't initialize**: Check browser console for errors. Ensure all components have the correct `data-component` attributes.
+- **"Missing required components" error**: Check that all components have the correct structure and data attributes. Make sure:
+  - FileInput has an `<input type="file">` element
+  - ProgressBar has an element with class="progress-bar"
+  - All elements use the expected CSS classes (especially "dropzone")
+  - Data attributes use kebab-case (e.g., data-output-type not dataset-outputtype)
+
 - **File uploads fail**: Verify webhook URLs and Make.com scenario configurations.
+
 - **Components not showing**: Make sure all components are properly nested in their slots.
+
 - **Styling issues**: Check for CSS conflicts and ensure your components have appropriate styling.
 
 ## Advanced Usage
