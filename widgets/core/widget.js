@@ -17,7 +17,9 @@ class WidgetController {
     
     // Get component references
     this.input = this.shell.querySelector('[data-component="FileInput"] input[type=file]');
-    this.progressBar = this.shell.querySelector('[data-component="ProgressBar"] .progress-bar');
+    // Look for both standard and Webflow u- prefixed classes
+    this.progressBar = this.shell.querySelector('[data-component="ProgressBar"] .progress-bar') || 
+                       this.shell.querySelector('[data-component="ProgressBar"] .u-progress-bar');
     this.resultCard = this.shell.querySelector('[data-component="ResultCard"]');
     
     // Get configuration - use existing Make.com webhooks as defaults
@@ -44,7 +46,9 @@ class WidgetController {
     this.input.addEventListener('change', this.handleFileSelection.bind(this));
     
     // Drag and drop support for the dropzone
-    const dropzone = this.shell.querySelector('.dropzone');
+    // Look for both standard and Webflow u- prefixed classes
+    const dropzone = this.shell.querySelector('.dropzone') || 
+                     this.shell.querySelector('.u-dropzone');
     if (dropzone) {
       dropzone.addEventListener('dragover', e => {
         e.preventDefault();
@@ -256,6 +260,7 @@ class WidgetController {
     const headline = this.resultCard.querySelector('[data-result="headline"]');
     const textContent = this.resultCard.querySelector('[data-result="text"]');
     const copyBtn = this.resultCard.querySelector('.widget-copy') || 
+                    this.resultCard.querySelector('.u-widget-copy') ||
                     this.resultCard.querySelector('[data-action="copy"]');
     
     // Remove any error classes
@@ -337,7 +342,7 @@ class WidgetController {
     const a = document.createElement('a');
     a.href = url;
     a.textContent = label;
-    a.className = 'widget-download';
+    a.className = 'widget-download u-widget-download'; // Add both classes for compatibility
     a.target = '_blank';
     
     // If we have a template for filenames
