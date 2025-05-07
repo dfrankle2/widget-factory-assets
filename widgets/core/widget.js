@@ -324,6 +324,13 @@ class WidgetController {
   renderCTA(kind, payload) {
     // remove previous CTA, if any
     this.resultCard.querySelectorAll('.widget-cta').forEach(el => el.remove());
+    
+    // Hide any older buttons/links that might be showing
+    const oldCopyBtn = this.resultCard.querySelector('.widget-copy, .u-widget-copy');
+    if (oldCopyBtn) oldCopyBtn.style.display = 'none';
+    
+    const oldDownloadLink = this.resultCard.querySelector('[data-result="single-link"]');
+    if (oldDownloadLink) oldDownloadLink.style.display = 'none';
 
     if (kind === 'copy') {
       const btn = document.createElement('button');
@@ -337,8 +344,7 @@ class WidgetController {
       };
       this.resultCard.appendChild(btn);
     }
-
-    if (kind === 'download') {
+    else if (kind === 'download') {
       // Check for existing link element first (backward compatibility)
       const singleLink = this.resultCard.querySelector('[data-result="single-link"]');
       if (singleLink) {
