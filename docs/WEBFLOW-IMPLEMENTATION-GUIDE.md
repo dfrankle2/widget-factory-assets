@@ -181,6 +181,8 @@ Once your components are created, adding a new widget is simple:
 To avoid "Missing required components" errors, ensure your widget follows this exact structure:
 
 > **Note**: As of v1.1.0, the widget controller supports Webflow's `u-` prefixed classes. You can use either `.progress-bar` or `.u-progress-bar`, `.dropzone` or `.u-dropzone`, etc.
+>
+> **New in v1.2.0**: The widget now dynamically generates context-appropriate CTA buttons based on output type (copy button for text, download link for files). No need to add these buttons to your Webflow markup!
 
 ```html
 <section data-component="WidgetShell"
