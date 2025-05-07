@@ -8,10 +8,10 @@ Add these two tags to your Webflow project:
 
 ```html
 <!-- In Webflow > Project Settings > Custom Code > Head -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css">
 
 <!-- In Webflow > Project Settings > Custom Code > Footer -->
-<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js"></script>
+<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.min.js"></script>
 ```
 
 ## Detailed Steps
@@ -20,8 +20,8 @@ Add these two tags to your Webflow project:
 
 The Widget Factory files are served from jsDelivr using these URLs:
 
-- **CSS**: `https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css`
-- **JS**: `https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js`
+- **CSS**: `https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css`
+- **JS**: `https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.min.js`
 
 ### 2. Adding to Webflow
 
@@ -32,13 +32,13 @@ This adds the widget system to your entire Webflow site:
 1. Go to **Project Settings** > **Custom Code**
 2. In the **Head Code** section, add:
    ```html
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css">
    ```
 3. In the **Footer Code** section, add:
    ```html
    <script type="module">
      // Import the widget controller from jsDelivr CDN
-     import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js';
+     import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.min.js';
      
      // Initialize all widgets on the page
      document.addEventListener('DOMContentLoaded', () => {
@@ -75,23 +75,23 @@ If you only need widgets on specific pages:
 If you have multiple CSS or JS files to load, you can use jsDelivr's combine feature:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/combine/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css,gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/theme/dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/combine/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css,gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/theme/dark.css">
 
-<script type="module" defer src="https://cdn.jsdelivr.net/combine/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js,gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/utils/uploader.min.js"></script>
+<script type="module" defer src="https://cdn.jsdelivr.net/combine/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.min.js,gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/utils/uploader.min.js"></script>
 ```
 
 ### 4. Version Control
 
-For production use, we're using the version tag `@v1.0.1` for stability:
+For production use, we're using the version tag `@v1.0.2` for stability:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css">
-<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css">
+<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.min.js"></script>
 ```
 
 For cache busting without changing the version, add a query parameter:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.1/widgets/core/widget.css?v=2025-05-07">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.0.2/widgets/core/widget.css?v=2025-05-07">
 ```
 
 ## Critical Structure Requirements
@@ -170,5 +170,5 @@ For development and testing:
 - Add a query string parameter for cache busting: `?v=20250507`
 
 For production:
-- Use the stable v1.0.1 version tag: `@v1.0.1`
+- Use the stable v1.0.1 version tag: `@v1.0.2`
 - Future versions will be tagged as needed
