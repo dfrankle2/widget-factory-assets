@@ -82,16 +82,16 @@ If you have multiple CSS or JS files to load, you can use jsDelivr's combine fea
 
 ### 4. Version Control
 
-For production use, we're using the version tag `@v1.2.0` for stability:
+For production use, we're using the version tag `@v1.2.1` for stability:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.2.0/widgets/core/widget.css">
-<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.2.0/widgets/core/widget.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.2.1/widgets/core/widget.css">
+<script type="module" defer src="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.2.1/widgets/core/widget.min.js"></script>
 ```
 
 For cache busting without changing the version, add a query parameter:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.2.0/widgets/core/widget.css?v=2025-05-07">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.2.1/widgets/core/widget.css?v=2025-05-07">
 ```
 
 ## Critical Structure Requirements
@@ -172,5 +172,5 @@ For development and testing:
 - Add a query string parameter for cache busting: `?v=20250507`
 
 For production:
-- Use the stable v1.2.0 version tag: `@v1.2.0`
+- Use the stable v1.2.1 version tag: `@v1.2.1`
 - Future versions will be tagged as needed
