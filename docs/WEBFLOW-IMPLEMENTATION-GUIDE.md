@@ -124,7 +124,7 @@ The WidgetShell coordinates all the other components.
 ```html
 <script type="module">
   // Import the widget controller from jsDelivr CDN
-  import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.1/widgets/core/widget.min.js';
+  import WidgetController from 'https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.2.0/widgets/core/widget.min.js';
   
   // Initialize all widgets on the page
   document.addEventListener('DOMContentLoaded', () => {
@@ -152,7 +152,7 @@ The WidgetShell coordinates all the other components.
 Also add the CSS in the head section:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.1.1/widgets/core/widget.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dfrankle2/widget-factory-assets@v1.2.0/widgets/core/widget.css">
 ```
 
 ## Creating a New Widget Instance
