@@ -1,8 +1,8 @@
 /**
- * Webflow Widget Factory - Core Module
+ * Webflow Widget Factory - Core Module with Supabase Integration
  * 
  * This module coordinates components through a clean event-based architecture
- * and integrates with Make.com for file processing.
+ * and integrates with either Make.com or Supabase for file processing.
  */
 
 class WidgetController {
@@ -17,7 +17,9 @@ class WidgetController {
     
     // Get component references
     this.input = this.shell.querySelector('[data-component="FileInput"] input[type=file]');
-    this.progressBar = this.shell.querySelector('[data-component="ProgressBar"] .progress-bar');
+    // Look for both standard and Webflow u- prefixed classes
+    this.progressBar = this.shell.querySelector('[data-component="ProgressBar"] .progress-bar') || 
+                       this.shell.querySelector('[data-component="ProgressBar"] .u-progress-bar');
     this.resultCard = this.shell.querySelector('[data-component="ResultCard"]');
     
     // Get configuration - use existing Make.com webhooks as defaults
@@ -25,17 +27,58 @@ class WidgetController {
     this.presignEndpoint = this.shell.dataset.presignEndpoint || 'https://hook.us1.make.com/gdcgg8ryb664x79ueclrbnjpj8f7k1wn';
     this.processEndpoint = this.shell.dataset.processEndpoint || 'https://hook.us1.make.com/mq6panopy0wdk7cuq94xkt9tf2lhriup';
     this.maxFileSize = parseInt(this.input?.dataset.maxSize || '5') * 1024 * 1024; // Default 5MB
-    this.outputType = this.shell.dataset.outputType || 'file'; // text, json, or file (as in existing code)
+    this.outputType = this.shell.dataset.outputType || 'file'; // text, json, or file
     
-    // Generate/retrieve anonymous ID for user tracking, matching existing implementation
+    // Generate/retrieve anonymous ID for user tracking
     this.anonId = localStorage.anonId || (localStorage.anonId = crypto.randomUUID());
+    
+    // Supabase configuration (optional)
+    this.useSupabase = this.shell.dataset.useSupabase === 'true';
+    this.supabaseUrl = this.shell.dataset.supabaseUrl || '';
+    this.supabaseKey = this.shell.dataset.supabaseKey || '';
+    this.supabase = null;
+    this.usageId = null;
+    this.realtimeSubscription = null;
+    
+    // Initialize Supabase client if configuration is available
+    if (this.useSupabase && this.supabaseUrl && this.supabaseKey) {
+      this.initSupabase();
+    }
     
     // Initialize if all components are present
     if (this.input && this.progressBar && this.resultCard) {
       this.bindEvents();
-      console.log('Widget initialized with ID:', this.widgetId);
+      console.log('Widget initialized with ID:', this.widgetId, this.useSupabase ? '(using Supabase)' : '(using Make.com)');
     } else {
       console.error('Widget initialization failed: Missing required components');
+    }
+  }
+  
+  // Initialize Supabase client
+  async initSupabase() {
+    try {
+      // Check if WidgetFactorySupabase is available
+      if (typeof WidgetFactorySupabase !== 'undefined') {
+        this.supabase = new WidgetFactorySupabase({
+          supabaseUrl: this.supabaseUrl,
+          supabaseKey: this.supabaseKey,
+          widgetId: this.widgetId
+        });
+        
+        // Show credits info if available
+        const creditsInfo = this.shell.querySelector('.credits-info');
+        if (creditsInfo && this.supabase) {
+          const credits = await this.supabase.checkCredits();
+          creditsInfo.textContent = `Credits: ${credits}`;
+          creditsInfo.style.display = 'block';
+        }
+      } else {
+        console.error('WidgetFactorySupabase not found. Include the script: <script src="path/to/supabase-client.js"></script>');
+        this.useSupabase = false;
+      }
+    } catch (error) {
+      console.error('Failed to initialize Supabase:', error);
+      this.useSupabase = false;
     }
   }
   
@@ -44,7 +87,9 @@ class WidgetController {
     this.input.addEventListener('change', this.handleFileSelection.bind(this));
     
     // Drag and drop support for the dropzone
-    const dropzone = this.shell.querySelector('.dropzone');
+    // Look for both standard and Webflow u- prefixed classes
+    const dropzone = this.shell.querySelector('.dropzone') || 
+                     this.shell.querySelector('.u-dropzone');
     if (dropzone) {
       dropzone.addEventListener('dragover', e => {
         e.preventDefault();
@@ -99,17 +144,12 @@ class WidgetController {
       // Update progress bar - starting progress
       this.dispatchWidgetEvent('upload:progress', { percent: 5 });
       
-      // Get presigned URL from Make.com webhook - same format as existing code
-      const { uploadUrl } = await this.getPresignedURL(fileKey, file);
-      
-      // Upload the file with progress tracking
-      await this.uploadFile(uploadUrl, file);
-      
-      // Upload complete - set progress to 45% like existing code
-      this.dispatchWidgetEvent('upload:progress', { percent: 45 });
-      
-      // Process the uploaded file
-      await this.processFiles([fileKey]);
+      // Process using Supabase or Make.com based on configuration
+      if (this.useSupabase && this.supabase) {
+        await this.processWithSupabase(file);
+      } else {
+        await this.processWithMake(file, fileKey);
+      }
       
       // Complete - set progress to 100%
       this.dispatchWidgetEvent('upload:progress', { percent: 100 });
@@ -124,7 +164,82 @@ class WidgetController {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit';
       }
+      
+      // Clean up any realtime subscription
+      if (this.realtimeSubscription) {
+        this.realtimeSubscription.unsubscribe();
+        this.realtimeSubscription = null;
+      }
     }
+  }
+  
+  // Process file using Supabase
+  async processWithSupabase(file) {
+    try {
+      // Set up realtime updates for processing status
+      let progressCallback = (data) => {
+        if (data.percent) {
+          this.dispatchWidgetEvent('upload:progress', { percent: data.percent });
+        }
+      };
+      
+      // Upload and process the file
+      const result = await this.supabase.uploadFile(file, progressCallback);
+      
+      // Update credits info if available
+      const creditsInfo = this.shell.querySelector('.credits-info');
+      if (creditsInfo) {
+        const credits = await this.supabase.checkCredits();
+        creditsInfo.textContent = `Credits: ${credits}`;
+      }
+      
+      // Create a Response-like object for compatibility with existing code
+      let responseContent, contentType;
+      
+      if (typeof result === 'string') {
+        responseContent = result;
+        contentType = 'text/plain';
+      } else if (result && typeof result === 'object') {
+        responseContent = JSON.stringify(result);
+        contentType = 'application/json';
+      } else {
+        responseContent = '{}';
+        contentType = 'application/json';
+      }
+      
+      // Create a blob with the content
+      const blob = new Blob([responseContent], { type: contentType });
+      
+      // Create a mock Response object
+      const mockResponse = new Response(blob, {
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          'Content-Type': contentType
+        }
+      });
+      
+      // Handle the response using the existing handler
+      await this.handleResponse(mockResponse);
+    } catch (error) {
+      console.error('Supabase processing failed:', error);
+      throw error;
+    }
+  }
+  
+  // Process file using Make.com (original implementation)
+  async processWithMake(file, fileKey) {
+    // Get presigned URL from Make.com webhook
+    const { uploadUrl } = await this.getPresignedURL(fileKey, file);
+    
+    // Upload the file with progress tracking
+    await this.uploadFile(uploadUrl, file);
+    
+    // Upload complete - set progress to 45%
+    this.dispatchWidgetEvent('upload:progress', { percent: 45 });
+    
+    // Process the uploaded file
+    await this.processFiles([fileKey]);
   }
   
   // Helper method to dispatch custom events
@@ -150,7 +265,7 @@ class WidgetController {
         break;
         
       case 'process:success':
-        this.handleProcessSuccess(detail);
+        // We don't need to handle this here as it's managed in handleResponse already
         break;
         
       case 'process:error':
@@ -255,8 +370,6 @@ class WidgetController {
     // Get references to result card elements
     const headline = this.resultCard.querySelector('[data-result="headline"]');
     const textContent = this.resultCard.querySelector('[data-result="text"]');
-    const copyBtn = this.resultCard.querySelector('.widget-copy') || 
-                    this.resultCard.querySelector('[data-action="copy"]');
     
     // Remove any error classes
     if (textContent) textContent.classList.remove('widget-error');
@@ -265,10 +378,11 @@ class WidgetController {
       // Plain text output
       case 'text': {
         if (textContent) {
-          textContent.textContent = await response.text();
+          const txt = await response.text();
+          textContent.textContent = txt;
           textContent.style.display = 'block';
+          this.renderCTA('copy', txt);
         }
-        if (copyBtn) copyBtn.style.display = 'inline-block';
         break;
       }
       
@@ -281,8 +395,8 @@ class WidgetController {
             : JSON.stringify(data, null, 2);
           textContent.textContent = txt;
           textContent.style.display = 'block';
+          this.renderCTA('copy', txt);
         }
-        if (copyBtn) copyBtn.style.display = 'inline-block';
         break;
       }
       
@@ -300,7 +414,7 @@ class WidgetController {
           url = URL.createObjectURL(blob);
         }
         
-        this.injectDownloadButton(url);
+        this.renderCTA('download', url);
         break;
       }
     }
@@ -315,43 +429,67 @@ class WidgetController {
     });
   }
   
-  // Inject download button - similar to existing implementation
-  injectDownloadButton(url) {
-    if (!url) return;
+  /* ------------------------------------------------- */
+  /*  CTA factory                                      */
+  /* ------------------------------------------------- */
+  renderCTA(kind, payload) {
+    // remove previous CTA, if any
+    this.resultCard.querySelectorAll('.widget-cta').forEach(el => el.remove());
     
-    const singleLink = this.resultCard.querySelector('[data-result="single-link"]');
-    if (singleLink) {
-      singleLink.href = url;
-      singleLink.style.display = 'inline-block';
+    // Hide any older buttons/links that might be showing
+    const oldCopyBtn = this.resultCard.querySelector('.widget-copy, .u-widget-copy');
+    if (oldCopyBtn) oldCopyBtn.style.display = 'none';
+    
+    const oldDownloadLink = this.resultCard.querySelector('[data-result="single-link"]');
+    if (oldDownloadLink) oldDownloadLink.style.display = 'none';
+
+    if (kind === 'copy') {
+      const btn = document.createElement('button');
+      btn.className = 'widget-cta widget-copy u-widget-copy u-button-ghost';
+      btn.textContent = 'Copy text';
+      btn.onclick = () => {
+        navigator.clipboard.writeText(payload).then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => (btn.textContent = 'Copy text'), 1500);
+        });
+      };
+      this.resultCard.appendChild(btn);
+    }
+    else if (kind === 'download') {
+      // Check for existing link element first (backward compatibility)
+      const singleLink = this.resultCard.querySelector('[data-result="single-link"]');
+      if (singleLink) {
+        singleLink.href = payload;
+        singleLink.style.display = 'inline-block';
+        singleLink.className = 'widget-cta widget-download u-widget-download u-button-ghost';
+        
+        if (payload.startsWith('blob:')) {
+          singleLink.addEventListener('click', () => {
+            setTimeout(() => URL.revokeObjectURL(payload), 3000);
+          }, { once: true });
+        }
+        return;
+      }
       
-      if (url.startsWith('blob:')) {
-        singleLink.addEventListener('click', () => {
-          setTimeout(() => URL.revokeObjectURL(url), 3000);
+      // Create new link if none exists
+      const a = document.createElement('a');
+      a.className = 'widget-cta widget-download u-widget-download u-button-ghost';
+      a.textContent = this.shell.dataset.ctaLabel || 'Download';
+      a.href = payload;
+      a.download = ''; // let browser pick filename
+      
+      // If we have a template for filenames
+      if (this.shell.dataset.fnameTpl) {
+        a.download = this.shell.dataset.fnameTpl.replace('{{slug}}', this.shell.dataset.slug || 'file');
+      }
+      
+      this.resultCard.appendChild(a);
+      
+      if (payload.startsWith('blob:')) {
+        a.addEventListener('click', () => {
+          setTimeout(() => URL.revokeObjectURL(payload), 3000);
         }, { once: true });
       }
-      return;
-    }
-    
-    // If no existing link element, create one (backwards compatibility)
-    const label = this.shell.dataset.ctaLabel || 'Download';
-    const a = document.createElement('a');
-    a.href = url;
-    a.textContent = label;
-    a.className = 'widget-download';
-    a.target = '_blank';
-    
-    // If we have a template for filenames
-    if (this.shell.dataset.fnameTpl) {
-      a.download = this.shell.dataset.fnameTpl.replace('{{slug}}', this.shell.dataset.slug || 'file');
-    }
-    
-    // Append to result card
-    this.resultCard.insertAdjacentElement('beforeend', a);
-    
-    if (url.startsWith('blob:')) {
-      a.addEventListener('click', () => {
-        setTimeout(() => URL.revokeObjectURL(url), 3000);
-      }, { once: true });
     }
   }
   
